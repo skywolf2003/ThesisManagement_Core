@@ -1,0 +1,180 @@
+﻿@using ThesisManagement_Core.Utility
+@{
+
+}
+@section PageCsses
+{
+    <link rel="stylesheet" type="text/css" href="~/Content/myPagination/js/msgbox/msgbox.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/myPagination/js/myPagination/page.css" />
+    <style type="text/css">
+        .sep {
+            display: inline;
+            padding: 3px 0;
+            padding-left: 20px;
+            background: url(Content/Custom/images/phs.gif) 7px center no-repeat;
+        }
+    </style>
+}
+@section PageScripts
+{
+    <script src="~/Content/myPagination/js/myPagination/jquery.myPagination6.0.js"></script>
+    <script src="~/Content/myPagination/js/msgbox/msgbox.js"></script>
+    <script type="text/javascript">
+        var myPagination;
+        $(function() {
+            ZENG.msgbox.loadingAnimationPath = "Content/myPagination/js/msgbox/loading.gif";
+            myPagination = $("#dvPage").myPagination({
+                cssStyle: "Blue Style",
+                currPage: 1,
+                pageNumber: 5,
+                pageCount: @ViewBag.totalPage,
+                ajax: {
+                    debug: true,
+                    on: true,
+                    url: "@Url.Action("FindPageResult")",
+                    dataType: 'json',
+                    pageCountId: "totalPage",
+                    param: "name=&ticketNum=&phone=&pageSize=10",
+                    ajaxStart: function() {
+                        ZENG.msgbox.show(" 正在加载中，请稍后...", 6, 10000);
+                    },
+                    callback: function(result) {
+                        //用于测试，看到提示效果。
+                        setTimeout(function() {
+                                ZENG.msgbox.hide(); //隐藏加载提示
+                            },
+                            500);
+                        var html = "";
+                        if (result && result.data) {
+                            if (result.data.length > 0) {
+                                
+                                for (var i = 0; i < result.data.length; i++) {
+                                    html += "<tr>";
+                                    html += "<td>" + result.data[i].UserName + "</td>";
+                                    html += " <td>" + result.data[i].Specialty + "</td>";
+                                    html += " <td>" + result.data[i].TicketNumber + "</td>";
+                                    html += " <td>" + result.data[i].Phone + "</td>";
+                                    html += " <td>" + result.data[i].ThesisName + "</td>";
+                                    html += " <td>" + result.data[i].CheckReportName + "</td>";
+                                    html += " <td>" + result.data[i].CreateDateSplite + "</td>";
+                                    html += " <td class='delete'><a href='javascript:void(0);' onclick='DeleteInfo(" +
+                                        result.data[i].Id +
+                                        ");'>[删除]</a></td>";
+                                    html += "</tr>"
+                                }
+                                
+                            } else {
+                                html = "<tr><td style='text-align: center;' colspan='8'>暂无记录</td></tr>"
+                            }
+                            
+                        } else {
+                            html = "<tr>暂无记录</tr>"
+                        }
+                        $("#tbGridContent").html(html);
+                    }
+                }
+            });
+
+            $("#btnSearch").click(function() {
+                var name = $.trim($("#name").val());
+                var ticketNum = $.trim($("#ticketNum").val());
+                var phone = $.trim($("#phone").val());
+                var params = "name=" + name + "&ticketNum=" + ticketNum + "&phone=" + phone + "&pageSize=10";
+                params = decodeURI(params);
+                myPagination.onLoad({ param: params });
+            });
+
+        })
+
+        function DeleteInfo(id)
+        {
+            var postData = {
+                id: id
+            };
+            if(confirm("是否要删除该记录，如果删除后，对应的上传信息和文件将被删除！"))
+            {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("DeleteThesisInfo")",
+                    data: postData,
+                    async: false,
+                    success: function (data) {
+                        if (data && data.result) {
+                            myPagination.onReload();
+                            alert("删除成功！");
+                        } else {
+                            alert("删除失败！");
+                        }
+                    }
+                })
+            }
+        }
+        //退出登录
+        function Logout() {
+            $.get("@Url.Action("Logout")?r=" + Math.random(), function (data) {
+                if (data.Status == '@((int)RequestStatus.Successed)') {
+                    location.href = "@Url.Action("Login")";
+                }
+            })
+        }
+    </script>
+}
+<div id="hld">
+
+    <div class="wrapper">
+        <!-- wrapper begins -->
+        <div id="header">
+            <div class="hdrl"></div>
+            <div class="hdrr"></div>
+
+            <h1><a href="javascript:void(0);">河北经贸大学论文管理系统</a></h1>
+
+            <ul id="nav">
+                <li class="active"><a href="@Url.Action("Management")">论文管理</a></li>     
+                <li class=""><a href="@Url.Action("SpecialInfo")">专业管理</a></li> 
+            </ul>
+
+            <p class="user"><a href="javascript:void(0);" onclick="Logout();">退出</a></p>
+        </div>		<!-- #header ends -->
+        <div class="block">
+            <div class="block_head">
+                <div class="bheadl"></div>
+                <div class="bheadr"></div>
+                <h2>论文查询</h2>
+                <form action="" method="post">
+                    <label>姓名</label><input id="name" type="text" class="text" placeholder="姓名" />
+                    <span class="sep"></span>
+                    <label>准考证号</label><input id="ticketNum" type="text" class="text" placeholder="准考证号" />
+                    <span class="sep"></span>
+                    <label>手机号</label><input id="phone" type="text" class="text" placeholder="手机号" />
+                    <span class="sep"></span>
+                    <input id="btnSearch" type="button" class="submit small" value="查询" />
+                </form>
+            </div>		<!-- .block_head ends -->
+            <div class="block_content">
+                <form action="" method="post">
+                    <table cellpadding="0" cellspacing="0" width="100%" class="sortable">
+                        <thead>
+                        <tr>
+                            <th width="6%">姓名</th>
+                            <th width="10%">专业</th>
+                            <th width="10%">准考证号</th>
+                            <th width="10%">手机号</th>
+                            <th width="25%">论文名称</th>
+                            <th width="25%">查重报告名称</th>
+                            <th width="8%">上传时间</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tbGridContent">
+                        </tbody>
+                    </table>
+                    <div id="dvPage" class="pagination right">
+                    </div>		<!-- .pagination ends -->
+                </form>
+            </div>		<!-- .block_content ends -->
+            <div class="bendl"></div>
+            <div class="bendr"></div>
+        </div>		<!-- .block ends -->
+    </div>		<!-- wrapper ends -->
+</div>		<!-- #hld ends -->

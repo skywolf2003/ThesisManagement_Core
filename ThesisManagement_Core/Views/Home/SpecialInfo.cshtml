@@ -1,0 +1,187 @@
+﻿@using ThesisManagement_Core.DAL.Model
+@using ThesisManagement_Core.Utility
+@{
+
+}
+@section PageCsses
+{
+    <link rel="stylesheet" type="text/css" href="~/Content/myPagination/js/msgbox/msgbox.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/myPagination/js/myPagination/page.css" />
+    <style type="text/css">
+        .sep {
+            display: inline;
+            padding: 3px 0;
+            padding-left: 20px;
+            background: url(Content/Custom/images/phs.gif) 7px center no-repeat;
+        }
+    </style>
+}
+@section PageScripts
+{
+    <script src="~/Content/myPagination/js/myPagination/jquery.myPagination6.0.js"></script>
+    <script src="~/Content/myPagination/js/msgbox/msgbox.js"></script>
+    <script type="text/javascript">
+        $(function() {
+
+        })
+
+        function EditInfo(obj, id) {
+            $("input[id^='spec_']").hide().siblings().show();
+            $("span[name='spanNormal']").show();
+            $("span[name='spanEdit']").hide();
+            $(obj).parents("span").hide().siblings().show();
+            $("#spec_" + id).val($("#spec_" + id).attr("data-value"));
+            $("#spec_" + id).show().siblings().hide();
+        }
+
+        function DeleteInfo(obj, id) {
+            var postData = {
+                id: id
+            };
+            if (confirm("是否要删除该记录")) {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("DeleteSpecialInfo")",
+                    data: postData,
+                    async: false,
+                    success: function (data) {
+                        if (data && data.result) {
+                            alert("删除成功！");
+                            location.reload();
+                        } else {
+                            alert("删除失败！");
+                        }
+                    }
+                })
+            }
+        }
+
+        function CancelEdit(obj, id) {
+            $("#spec_" + id).hide().siblings().show();
+            $(obj).parents("span").hide().siblings().show();
+        }
+
+        function SubmitInfo(obj, id) {
+            if ($.trim($("#spec_" + id).val()).length > 0) {
+                var postData = {
+                    id: id,
+                    name: $("#spec_" + id).val()
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("EditSpecialInfo")",
+                    data: postData,
+                    async: false,
+                    success: function(data) {
+                        if (data && data.result) {
+                            alert("修改成功！");
+                            location.reload();
+                        } else {
+                            alert("修改失败！");
+                        }
+                    }
+                })
+            } else {
+                alert("请输入专业名称");
+            }
+        }
+
+        function SaveInfo(obj, id) {
+            if ($.trim($("#specName").val()).length > 0) {
+                var postData = {
+                    id: id,
+                    name: $.trim($("#specName").val())
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("EditSpecialInfo")",
+                    data: postData,
+                    async: false,
+                    success: function(data) {
+                        if (data && data.result) {
+                            alert("添加成功！");
+                            location.reload();
+                        } else {
+                            alert("添加失败！");
+                        }
+                    }
+                })
+            } else {
+                alert("请输入专业名称");
+            }
+        }
+        //退出登录
+        function Logout() {
+            $.get("@Url.Action("Logout")?r=" + Math.random(), function (data) {
+                if (data.Status == '@((int)RequestStatus.Successed)') {
+                    location.href = "@Url.Action("Login")";
+                }
+            })
+        }
+    </script>
+}
+<div id="hld">
+    <div class="wrapper">
+        <!-- wrapper begins -->
+        <div id="header">
+            <div class="hdrl"></div>
+            <div class="hdrr"></div>
+            <h1><a href="javascript:void(0);">河北经贸大学论文管理系统</a></h1>
+            <ul id="nav">
+                <li class=""><a href="@Url.Action("Management")">论文管理</a></li>     
+                <li class="active"><a href="@Url.Action("SpecialInfo")">专业管理</a></li> 
+            </ul>
+            <p class="user"><a href="javascript:void(0);" onclick="Logout();">退出</a></p>
+        </div>		<!-- #header ends -->
+        <div class="block" style="width: 50%;margin: auto;">
+            <div class="block_head">
+                <div class="bheadl"></div>
+                <div class="bheadr"></div>
+                <h2>专业管理</h2>
+                <form action="" method="post">
+                    <label>专业名称</label><input id="specName" type="text" class="text" placeholder="新增专业名称" />
+                    <input id="btnAdd" type="button" class="submit small" onclick="SaveInfo(this, 0);" value="添加"/>
+                </form>
+            </div>		<!-- .block_head ends -->
+            <div class="block_content">
+                <form action="" method="post">
+                    <table cellpadding="0" cellspacing="0" width="100%" class="sortable">
+                        <thead>
+                        <tr>
+                            <th width="4px"></th>
+                            <th width="70%">专业名称</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tbGridContent">
+                        @foreach (Specialty spec in ViewBag.Special)
+                        {
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <span>@spec.Name</span>
+                                    <input style="display: none;" id="spec_@spec.Id" value="@spec.Name" data-value="@spec.Name" type="text" width="40" />
+                                </td>
+                                <td>
+                                    <span id="spanNormal_@spec.Id" name="spanNormal">
+                                        <a href='javascript:void(0);' onclick='EditInfo(this, @spec.Id);'>【编辑】</a>
+                                        <a href='javascript:void(0);' onclick='DeleteInfo(this, @spec.Id);'>【删除】</a>
+                                    </span>
+                                    <span id="spanEdit_@spec.Id" name="spanEdit" style="display: none;">
+                                        <a href='javascript:void(0);' style="color: red;" onclick='SubmitInfo(this, @spec.Id);'>【确定】</a>
+                                        <a href='javascript:void(0);' style="color: red;" onclick='CancelEdit(this, @spec.Id);'>【取消】</a>
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                    <div id="dvPage" class="pagination right">
+                    </div>		<!-- .pagination ends -->
+                </form>
+            </div>		<!-- .block_content ends -->
+            <div class="bendl"></div>
+            <div class="bendr"></div>
+        </div>		<!-- .block ends -->
+    </div>		<!-- wrapper ends -->
+</div>		<!-- #hld ends -->

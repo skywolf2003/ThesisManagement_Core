@@ -3,14 +3,13 @@ using log4net.Config;
 using log4net.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.IO;
 using ThesisManagement_Core.BLL.Impl;
 using ThesisManagement_Core.BLL.Interface;
 using ThesisManagement_Core.DAL.Model;
+using ThesisManagement_Core.Utility;
 
 namespace ThesisManagement_Core
 {
@@ -29,14 +28,20 @@ namespace ThesisManagement_Core
         public void ConfigureServices(IServiceCollection services)
         {
             //获取数据库连接字符串
-            var sqlConnectionString = Configuration.GetConnectionString("DataBaseConnection");
-            services.AddDbContext<ThesisContext>(options => options.UseSqlServer(sqlConnectionString));
+            //var sqlConnectionString = Configuration.GetConnectionString("DataBaseConnection");
+            //services.AddDbContext<ThesisContext>(options => options.UseSqlServer(sqlConnectionString));
+            services.AddDbContext<ThesisContext>();
             //log4net
             Repository = LogManager.CreateRepository("NETCoreRepository");
             XmlConfigurator.Configure(Repository, new FileInfo("log4net.config"));
             //Dependency
+            //Locator.Register<IThesisService>(() => new ThesisService());
+            //Locator.Register<IUploadFileService>(() => new UploadFileService());
             services.AddTransient<IThesisService, ThesisService>();
             services.AddTransient<IUploadFileService, UploadFileService>();
+            services.AddTransient<ContextService>();
+            //add CookieManager
+            services.AddCookieManager();
             services.AddMvc();
         }
 
@@ -61,6 +66,7 @@ namespace ThesisManagement_Core
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
         }
     }
 }

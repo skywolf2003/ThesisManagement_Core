@@ -1,0 +1,20 @@
+﻿@using  ThesisManagement_Core.DAL.Model
+@{
+    Layout = null;
+}
+@if (ViewBag.ThesisInfo != null)
+{
+    foreach (ThesisInfo info in ViewBag.ThesisInfo)
+    {
+        <tr>
+            <td></td>
+            <td>@info.UserName</td>
+            <td>@info.Specialty</td>
+            <td>@info.TicketNumber</td>
+            <td>@info.Phone</td>
+            <td>@info.ThesisName</td>
+            <td>@info.CheckReportName</td>
+            <td class="delete"><a href="javascript:void(0);" onclick="DeleteInfo(@info.Id);">删除</a></td>
+        </tr>
+    }
+}

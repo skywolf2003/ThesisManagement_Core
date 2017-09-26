@@ -1,17 +1,27 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using ThesisManagement_Core.BLL.Interface;
 using ThesisManagement_Core.Models;
 using ThesisManagement_Core.Utility;
-using System.Collections;
 
 namespace ThesisManagement_Core.Controllers
 {
     public class HomeController : MvcController
     {
+        protected readonly IThesisService ThesisService;
+        protected readonly IUploadFileService UploadFileService;
+        protected readonly ContextService ContextService;
+        public HomeController(
+            IThesisService thesisService, 
+            IUploadFileService uploadFileService, 
+            ContextService ContextService)
+        {
+            this.ThesisService = thesisService;
+            this.UploadFileService = uploadFileService;
+            this.ContextService = ContextService;
+        }
         public IActionResult Index()
         {
             ViewBag.Specialty = ThesisService.GetSpecialties();
@@ -47,6 +57,7 @@ namespace ThesisManagement_Core.Controllers
             int status = (int)RequestStatus.Failed;
             try
             {
+
                 var username = Request.Form["username"];
                 var password = Request.Form["password"];
                 if (ThesisService.Login(username, password))

@@ -12,10 +12,10 @@ namespace ThesisManagement_Core.DAL.Model
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //if (!optionsBuilder.IsConfigured)
-            //{
-            //   optionsBuilder.UseSqlServer(@"Server=127.0.0.1;Database=Thesis;UID=sa;PWD=123456");
-            //}
+            if (!optionsBuilder.IsConfigured)
+            {
+               optionsBuilder.UseSqlServer(@"Server=127.0.0.1;Database=Thesis;UID=sa;PWD=123456");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,0 +1,89 @@
+﻿@using ThesisManagement_Core.Utility
+@{
+
+}
+@section PageScripts
+{
+    <script type="text/javascript">
+    $(function () {
+        $('.block .message .close').hover(
+            function () { $(this).addClass('hover'); },
+            function () { $(this).removeClass('hover'); }
+        );
+
+        $('.block .message .close').click(function () {
+            $(this).parent().fadeOut('slow');
+        });
+
+        $("#btnSubmit").click(function () {
+            $("#dvMsg .message").hide();
+            var name = $("#name").val();
+            var pwd = $("#pwd").val();
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("DoLogin")",
+                data: { username: name, password: pwd, returnUrl: '@ViewBag.returnUrl' },
+                success: function (result) {
+                    if ('@((int)RequestStatus.Successed)' == result.status) {
+                        if (result.returnUrl.length > 0)
+                            location.href = result.returnUrl;
+                        else
+                            location.href = '@Url.Action("Management")';
+                    } else {
+                        $("#msgContent").text("用户名或密码不正确！");
+                        $("#dvMsg .message").fadeIn("slow");
+                    }
+                }
+            })
+        })
+    })
+    </script>
+}
+<div id="hld">
+    <div class="wrapper">
+        <!-- wrapper begins -->
+        <div class="block small center login">
+
+            <div class="block_head">
+                <div class="bheadl"></div>
+                <div class="bheadr"></div>
+
+                <h2>登录</h2>
+                <ul>
+                    <li><a href="#"></a></li>
+                </ul>
+            </div>		<!-- .block_head ends -->
+            <div class="block_content">
+                <div id="dvMsg">
+                    <div class='message info' style="display: none;">
+                        <p id="msgContent"></p>
+                        <span class="close"></span>
+                    </div>
+                </div>
+
+                <form action="index.html" method="post">
+                    <p>
+                        <label>用户名:</label> <br />
+                        <input id="name" type="text" class="text" value="" />
+                    </p>
+
+                    <p>
+                        <label>密码:</label> <br />
+                        <input id="pwd" type="password" class="text" value="" />
+                    </p>
+
+                    <p>
+                        <input id="btnSubmit" type="button" class="submit" value="登录" /> &nbsp;
+                        @*<input type="checkbox" class="checkbox" checked="checked" id="rememberme" /> <label for="rememberme">记住密码</label>*@
+                    </p>
+                </form>
+
+            </div>
+            <!-- .block_content ends -->
+            <div class="bendl"></div>
+            <div class="bendr"></div>
+        </div>
+        <!-- .login ends -->
+    </div><!-- wrapper ends -->
+
+</div><!-- #hld ends -->

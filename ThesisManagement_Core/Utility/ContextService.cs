@@ -1,55 +1,44 @@
-﻿using System.Collections.Generic;
-using System.Web;
+﻿using CookieManager;
+using Microsoft.AspNetCore.Http;
+using System;
+//using System.Security.Claims;
+//using System.Security.Principal;
 
 namespace ThesisManagement_Core.Utility
 {
     public class ContextService
     {
-        #region 设置Cookie
-        public static void SetCookie(string name, string value)
+        private readonly ICookieManager _cookieManager;
+        private readonly ICookie _cookie;
+
+        public ContextService(ICookieManager cookieManager, ICookie cookie/*, IHttpContextAccessor contextAccessor*/)
         {
-            //HttpCookie cookie = null;
-            //if (HttpContext.Current.Request.Cookies[AppSetting.CookieName] == null)
-            //{
-            //    cookie = new HttpCookie(AppSetting.CookieName)
-            //    {
-            //        HttpOnly = true,
-            //        Expires = System.DateTime.MinValue,
-            //        Secure = System.Web.Security.FormsAuthentication.RequireSSL,
-            //        Path = System.Web.Security.FormsAuthentication.FormsCookiePath
-            //    };
-            //    if (System.Web.Security.FormsAuthentication.CookieDomain != null)
-            //    {
-            //        cookie.Domain = System.Web.Security.FormsAuthentication.CookieDomain;
-            //    }
-            //}
-            //else
-            //{
-            //    cookie = HttpContext.Current.Request.Cookies[AppSetting.CookieName];
-            //}
-            //if (cookie[name] != null)
-            //{
-            //    cookie.Values.Remove(name);
-            //}
-            //if (!string.IsNullOrWhiteSpace(name))
-            //    cookie.Values.Add(name, value);
-            //HttpContext.Current.Request.Cookies.Add(cookie);
-            //HttpContext.Current.Response.Cookies.Add(cookie);
+            this._cookieManager = cookieManager;
+            this._cookie = cookie;
+        }
+
+        #region 设置Cookie
+        public void SetCookie(string name, string value)
+        {
+            string keystr = _cookie.Get(name);
+            if (!string.IsNullOrWhiteSpace(name))
+                _cookie.Set(name, value, new CookieOptions() { HttpOnly = true, Expires = DateTime.Now.AddDays(1) });
         }
         #endregion
 
         #region 获取Cookie
-        public static string GetCookie(string name)
+        public string GetCookie(string name)
         {
+            return _cookie.Get(name);
             //var cookie = HttpContext.Current.Request.Cookies[AppSetting.CookieName];
             //return cookie == null ? "" : string.IsNullOrEmpty(cookie.Values[name]) ? "" : cookie.Values[name];
-            return "";
         }
         #endregion
 
         #region 删除cookie
-        public static void DeleteCookie(string name)
+        public void DeleteCookie(string name)
         {
+            _cookie.Remove(name);
             //var cookie = HttpContext.Current.Request.Cookies[AppSetting.CookieName];
             //if (cookie == null) return;
             //if (string.IsNullOrEmpty(name) || name == AppSetting.CookieName)

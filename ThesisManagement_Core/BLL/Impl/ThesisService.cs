@@ -14,6 +14,13 @@ namespace ThesisManagement_Core.BLL.Impl
 {
     public class ThesisService : BLLBase, IThesisService
     {
+        private readonly ContextService ContextService;
+
+        public ThesisService(ContextService ContextService)
+        {
+            this.ContextService = ContextService;
+        }
+
         public IList<Specialty> GetSpecialties()
         {
             return DBThesis.Specialty.ToList();
